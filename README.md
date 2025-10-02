@@ -27,3 +27,10 @@
    ```bash
    cp .env.example .env
    # Ajustar si es necesario: POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_PORT
+
+2. **Ejecutar el pipeline completo**  
+   El archivo de Bash [`run_all.sh`](run_all.sh) orquesta todo el proceso end-to-end: levanta la DB, aplica DDL, construye la imagen, carga los datos y corre los reportes.
+
+   ```bash
+   chmod +x run_all.sh
+   ./run_all.sh
