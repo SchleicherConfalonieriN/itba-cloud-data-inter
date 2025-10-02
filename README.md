@@ -1,32 +1,29 @@
-# Ejercicio 6 – Documentación y ejecución end-to-end
+## Ejercicio 6 — Documentación y ejecución end-to-end
 
-Este ejercicio integra todo el flujo de trabajo realizado en los pasos anteriores:
+### ¿Qué hice en cada ejercicio?
 
-1. **Levantar la base de datos en Docker Compose** (Postgres 12.7).
-2. **Crear las tablas (DDL)** usando el script Bash.
-3. **Construir la imagen de aplicación** con Python + dependencias.
-4. **Cargar los datos** del dataset público de vehículos eléctricos de Washington.
-5. **Ejecutar consultas SQL** mediante un script de reportes en Python.
-6. **Mostrar todo el proceso end-to-end** desde un único script Bash (`run_all.sh`).
+- **Ejercicio 1 (Dataset & preguntas):** Elegí el dataset público *Electric Vehicle Population Data* del DOL de Washington y definí 5 preguntas de negocio.  
+  → Ver detalle en [`docs/dataset.md`](docs/dataset.md).
 
----
+- **Ejercicio 2 (DB en Docker):** Provisioné **PostgreSQL 12.7** con `docker-compose.yml`, exponiendo el puerto 5432 y usando un volumen `pgdata` para persistencia.
 
-## 📂 Archivos principales
+- **Ejercicio 3 (DDL con Bash):** Creé el esquema y tabla principal (`ev.ev_registrations`) e índices en `db/schema.sql`.  
+  El script [`scripts/01_create_tables.sh`](scripts/01_create_tables.sh) aplica el DDL contra el contenedor de Postgres (espera a que esté *healthy* y ejecuta con una imagen efímera de `postgres:12.7`).
 
-- `docker-compose.yml` → definición del servicio de Postgres.
-- `.env.example` → ejemplo de configuración (usuario, password, DB, puerto).
-- `scripts/01_create_tables.sh` → aplica `db/schema.sql` para crear tablas.
-- `scripts/02_load_data.py` → descarga dataset y lo inserta en la base.
-- `scripts/03_run_reports.py` → ejecuta consultas SQL y muestra reportes.
-- `app-image/Dockerfile` y `app-image/requirements.txt` → imagen para scripts Python.
-- `run_all.sh` → orquesta todos los pasos anteriores.
+- **Ejercicio 4 (Carga de datos):** Implementé [`scripts/02_load_data.py`](scripts/02_load_data.py) que descarga el JSON del dataset, normaliza campos (ej. lat/lon, rangos, MSRP) y hace *upsert* en la tabla.  
+  Se ejecuta dentro de una imagen propia de Python (ver `app-image/`) mediante `docker run`.
+
+- **Ejercicio 5 (Consultas/Reportes):** Implementé [`scripts/03_run_reports.py`](scripts/03_run_reports.py) con 5 queries SQL que responden las preguntas de negocio (condados, marcas/modelos por ciudad, BEV vs PHEV, MSRP por ZIP y utilities).  
+  Imprime tablas legibles en consola y también corre en contenedor efímero.
 
 ---
 
-## ▶️ Ejecución end-to-end
+### Cómo ejecutar todo el proceso end-to-end
 
-1. Crear archivo `.env` a partir de `.env.example`:
+> Requisitos: Docker + Docker Compose. Conexión a Internet para bajar imágenes y dataset.
 
+1. **Configurar variables**  
+   Crear `.env` desde el ejemplo:
    ```bash
    cp .env.example .env
-   # editar valores si es necesario
+   # Ajustar si es necesario: POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_PORT
